@@ -22,40 +22,48 @@ so your code just has to reference one authoritative currency type to get the be
 When you create a Money instance, it is, at construction time, forever bound to a currency. If you don't
 specify the currency explicitly, it is set based on the current operation thread's culture properties.
 
-	// Let's create $1000 in cold, hard American cash
-	Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-	Money money = 1000;
+```csharp
+// Let's create $1000 in cold, hard American cash
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+Money money = 1000;
+```
 
 The method above, when you don't specify it explicitly, will set the currency based on the current
 thread's culture. You can explicitly request a currency type using the Currency enum passed into 
 the constructor, or copy other currency types by passing in their CurrencyInfo instance.
 
-	Money fin = new Money(Currency.USD, 5.00);
-	Money fiddy = new Money(money.CurrencyInfo, 50.00);	
+```csharp
+Money fin = new Money(Currency.USD, 5.00);
+Money fiddy = new Money(money.CurrencyInfo, 50.00);	
+```
 
 Now that we have a money instance, we get access to all kinds of regional info:
 
-	Console.WriteLine(money.CurrencyInfo.Code);				// Outputs: USD
-    Console.WriteLine(money.CurrencyInfo.DisplayCulture);   // Outputs: en-US (it's a CultureInfo instance)
-    Console.WriteLine(money.CurrencyInfo.DisplayName);      // Outputs: US Dollar
-    Console.WriteLine(money.CurrencyInfo.NativeRegion);     // Outputs: US
+```csharp
+Console.WriteLine(money.CurrencyInfo.Code);				// Outputs: USD
+Console.WriteLine(money.CurrencyInfo.DisplayCulture);   // Outputs: en-US (it's a CultureInfo instance)
+Console.WriteLine(money.CurrencyInfo.DisplayName);      // Outputs: US Dollar
+Console.WriteLine(money.CurrencyInfo.NativeRegion);     // Outputs: US
+```
 
 #### Creating CurrencyInfo
 
 There are many ways to obtain a CurrencyInfo instance, from a Currency enum value,
 or even RegionInfo if you're unsure of the currency in an area.
 
-	// The current culture of the running thread
-	CurrencyInfo currencyInfo = CultureInfo.CurrentCulture;
+```csharp
+// The current culture of the running thread
+CurrencyInfo currencyInfo = CultureInfo.CurrentCulture;
 
-	// From the Currency enumeration (New Zealand Dollars)
-	CurrencyInfo currencyInfo = Currency.NZD;
+// From the Currency enumeration (New Zealand Dollars)
+CurrencyInfo currencyInfo = Currency.NZD;
 
-	// From a specific country using RegionInfo (Canadian Dollars)
-	CurrencyInfo currencyInfo = new RegionInfo("CA");
+// From a specific country using RegionInfo (Canadian Dollars)
+CurrencyInfo currencyInfo = new RegionInfo("CA");
 
-	// From a formal CultureInfo instance (French Francs)
-	CurrencyInfo currencyInfo = new CultureInfo("fr-FR");
+// From a formal CultureInfo instance (French Francs)
+CurrencyInfo currencyInfo = new CultureInfo("fr-FR");
+```
 
 #### Displaying Money
 		
@@ -65,18 +73,21 @@ You can do this either by calling ToString(), which will provide the currency
 value _as it should be displayed in the current culture_, or explicitly using
 the DisplayIn method.
 
-	// Let's create $1000 in cold, hard American cash
-	Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-	Money money = 1000;
-	Console.WriteLine(money.ToString())		// Outputs: $1,000.00
+```csharp
+// Your customer is using your application from Paris, France...
+// Let's create $1000 in cold, hard American cash
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+Money money = 1000;
+Console.WriteLine(money.ToString())		// Outputs: $1,000.00
 
-	// Display the same money in a different culture thread
-	Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
-	Console.WriteLine(money.ToString());	// Outputs: $1 000,00
+// Display the same money in a different culture thread
+Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+Console.WriteLine(money.ToString());	// Outputs: $1 000,00
 
-	// Display the same money using the DisplayIn method
-	var explicit = money.DisplayIn(new CultureInfo("en-CA"));
-	Console.WriteLine(explicit);			// Outputs: $1,000.00 USD
+// Display the same money using the DisplayIn method
+var explicit = money.DisplayIn(new CultureInfo("en-CA"));
+Console.WriteLine(explicit);			// Outputs: $1,000.00 USD
+```
 	
 In the last example above, since the culture (Canadian English) also uses dollars
 for currency, the "USD" disambiguator is automatically added to give context to
@@ -88,35 +99,43 @@ that turns disambiguation off.
 Because Money knows that Canada has a French equivalent, it elects to display
 the currency in the "fr-CA" display culture. 
 
-		// Your customer is using your application from Paris, France...
-		Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+```csharp
+// Your customer is using your application from Paris, France...
+Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
 
-		// But you want to display currency in Canadian Dollars
-		Money money = new Money(Currency.CAD, 1000);
-        Console.WriteLine(money.ToString());		// Output: 1 000,00 $
+// But you want to display currency in Canadian Dollars
+Money money = new Money(Currency.CAD, 1000);
+Console.WriteLine(money.ToString());		// Output: 1 000,00 $
+```
 	
 The same thing happens if we want to display Canadian currency in Britain;
 Since Canada also has an English equivalent, we get the closest match for
 outputting in English.
 
-		Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
-        Money money = new Money(Currency.CAD, 1000);
-        Console.WriteLine(money.ToString());		// Output: $1,000.00 
+```csharp
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en-GB");
+Money money = new Money(Currency.CAD, 1000);
+Console.WriteLine(money.ToString());		// Output: $1,000.00 
+```
 
 There is no CAD equivalent in Germany, so currency display reverts to its
 home and native land.
 
-		Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
-		Money money = new Money(Currency.CAD, 1000);
-        Console.WriteLine(money.ToString());		// Output: $1,000.00 
+```csharp
+Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
+Money money = new Money(Currency.CAD, 1000);
+Console.WriteLine(money.ToString());		// Output: $1,000.00 
+```
 
 Note that this is _not_ the same as if we displayed 
 CAD in Germany; _origin matters!_
 
-		Thread.CurrentThread.CurrentCulture = new CultureInfo("en-CA");
-		Money money = new Money(1000);
-		var german = new CultureInfo("de-DE");
-        Console.WriteLine(money.DisplayIn(german));  // Output: $1.000,00
+```csharp
+Thread.CurrentThread.CurrentCulture = new CultureInfo("en-CA");
+Money money = new Money(1000);
+var german = new CultureInfo("de-DE");
+Console.WriteLine(money.DisplayIn(german));  // Output: $1.000,00
+```
 
 #### Calculating Money
 
