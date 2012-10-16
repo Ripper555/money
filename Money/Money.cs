@@ -14,6 +14,19 @@ namespace Money
     [Serializable]
     public partial struct Money : IComparable<Money>, IEquatable<Money>, IFormattable
     {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = _createdDate.GetHashCode();
+                hashCode = (hashCode*397) ^ (_currencyInfo != null ? _currencyInfo.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ _override.GetHashCode();
+                hashCode = (hashCode*397) ^ _places.GetHashCode();
+                hashCode = (hashCode*397) ^ _units.GetHashCode();
+                return hashCode;
+            }
+        }
+
         private readonly DateTime _createdDate;
         private readonly CurrencyInfo _currencyInfo;
         private double? _override;
@@ -73,7 +86,7 @@ namespace Money
 
         public bool Equals(Money other)
         {
-            return other == this;
+            return _createdDate.Equals(other._createdDate) && Equals(_currencyInfo, other._currencyInfo) && _override.Equals(other._override) && _places == other._places && _units == other._units;
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
@@ -95,18 +108,8 @@ namespace Money
 
         public override bool Equals(object other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            return other.GetType() == typeof (Money) &&
-                   Equals((Money) other);
-        }
-
-        public override int GetHashCode()
-        {
-            return _units.GetHashCode();
+            if (ReferenceEquals(null, other)) return false;
+            return other is Money && Equals((Money) other);
         }
 
         private double ScaleDownToDouble()
@@ -281,7 +284,7 @@ namespace Money
 
         private static int CountDecimalPlaces(decimal input)
         {
-            var value = input.ToString();
+            var value = input.ToString(CultureInfo.InvariantCulture);
 
             var places = value.Substring(value.IndexOf('.') + 1).Length;
 

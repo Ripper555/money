@@ -18,7 +18,8 @@ Thumbs.db
 *.ilk
 *.log
 [Bb]in
-[Dd]ebug*/
+[Dd]ebug
+[Cc]lientBin*/
 *.lib
 *.sbr
 obj/
@@ -26,10 +27,14 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 deploy.config
-Examples*/
 *.vsmdi
 *.pidb
 *.userprefs
 *.testrunconfig
+*.testsettings
 publish.xml
 TestResults
+$SSH_ENV
+src/.DS_Store
+src/.nuget/NuGet.Config
+*.nupkg

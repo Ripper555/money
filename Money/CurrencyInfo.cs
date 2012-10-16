@@ -17,22 +17,23 @@ namespace Money
     [DebuggerDisplay("{Code}")]
     public partial class CurrencyInfo
     {
-        private static readonly IDictionary<string, CultureInfo> _cultures;
+        private static readonly IDictionary<string, CultureInfo> Cultures;
 
         static CurrencyInfo()
         {
             var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures)
                 .Where(c => !c.IsNeutralCulture && !c.ThreeLetterISOLanguageName.Equals("IVL", StringComparison.InvariantCultureIgnoreCase));
 
-            _cultures = new Dictionary<string, CultureInfo>(0);
+            Cultures = new Dictionary<string, CultureInfo>(0);
             foreach (var culture in cultures)
             {
-                _cultures.Add(culture.Name, culture);
+                Cultures.Add(culture.Name, culture);
             }
         }
 
         private CurrencyInfo()
         {
+
         }
 
         /// <summary>
@@ -136,7 +137,7 @@ namespace Money
         /// <returns>The result of the conversion.</returns>
         public static implicit operator CurrencyInfo(Currency currency)
         {
-            var currencyInfo = _currencies[currency];
+            var currencyInfo = Currencies[currency];
 
             CultureInfo fallbackCulture;
 
@@ -185,10 +186,10 @@ namespace Money
             var currencySymbol = currencyCode.ToString("G");
 
             // Get all regions with the given currency (pivot on language to avoid losing precision)
-            var locales = (from c in _cultures.Values
+            var locales = (from c in Cultures.Values
                            let r = new RegionInfo(c.LCID)
                            where r.ISOCurrencySymbol.Equals(currencySymbol)
-                           select new {Region = r, Culture = c});
+                           select new {Region = r, Culture = c}).ToList();
 
             // Resolve the native region to the one the user is in, or the first valid one
             var locale = locales.SingleOrDefault(
@@ -204,10 +205,13 @@ namespace Money
                 // There was no logical match for this currency in the current culture;
                 // choose the most used equivalent for the native country as a fallback
                 locale = locales.LastOrDefault();
-                fallbackCulture = locale.Culture;
+                if (locale != null)
+                {
+                    fallbackCulture = locale.Culture;
+                }
             }
-            
-            return locale.Region;
+
+            return locale == null ? null : locale.Region;
         }
 
         private static CultureInfo GetDisplayCultureFromCurrencyCodeAndUserCulture(Enum currencyCode)
@@ -219,7 +223,7 @@ namespace Money
             var nativeRegion = GetNativeRegionFromCurrencyCodeAndUserCulture(currencyCode, out fallbackCulture);
 
             var cultureName = string.Format("{0}-{1}", languageCode, nativeRegion);
-            var cultureInfo = _cultures.ContainsKey(cultureName)
+            var cultureInfo = Cultures.ContainsKey(cultureName)
                                   ? new CultureInfo(cultureName)
                                   : new CultureInfo(languageCode);
 
