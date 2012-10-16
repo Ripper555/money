@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace Money
+namespace money
 {
     partial struct Money
     {

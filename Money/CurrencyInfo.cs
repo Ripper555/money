@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-namespace Money
+namespace money
 {
     /// <summary>
     /// A seamless currency class for working with money. 

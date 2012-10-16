@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 
-namespace Money
+namespace money
 {
     /// <summary>
     /// Money is immutable and coupled to the <see cref="CurrencyInfo" /> it belongs

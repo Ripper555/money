@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Money
+namespace money
 {
     partial class CurrencyInfo
     {

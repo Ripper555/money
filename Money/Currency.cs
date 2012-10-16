@@ -1,6 +1,6 @@
 using System;
 
-namespace Money
+namespace money
 {
     /// <summary>
     /// Represents world currency by numeric and alphabetic values, as per ISO 4217:
